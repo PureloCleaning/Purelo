@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purelo — Pricing Matrix</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500;600&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --sage:#3d5a47;--sage-l:#5a7d65;--sage-pale:#eef3f0;--sage-dark:#2a3f31;
+  --cream:#faf8f4;--stone:#e8e3da;--charcoal:#1c1c1c;--mid:#7a7a72;
+  --premium:#8b6914;--premium-pale:#fdf6e3;
+  --standard:#3a6c9e;--standard-pale:#e8f2fb;
+  --budget:#4a7c4e;--budget-pale:#eef3f0;
+  --profit:#27ae60;--loss:#c0392b;
+  --white:#fff;
+}
+body{font-family:'Outfit',sans-serif;background:#f0ede8;color:var(--charcoal);min-height:100vh;}
+
+
+/* ── PASSWORD SCREEN ── */
+.pw-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--sage-dark);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pw-box {
+  background: white;
+  padding: 48px 40px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.pw-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 2.2rem;
+  letter-spacing: .1em;
+  color: var(--sage);
+  margin-bottom: 4px;
+}
+.pw-sub {
+  font-size: .68rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 32px;
+}
+.pw-input {
+  width: 100%;
+  border: 1.5px solid var(--stone);
+  background: var(--cream);
+  padding: 12px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  color: var(--charcoal);
+  outline: none;
+  border-radius: 2px;
+  text-align: center;
+  letter-spacing: .1em;
+  margin-bottom: 12px;
+  transition: border-color .2s;
+}
+.pw-input:focus { border-color: var(--sage); }
+.pw-btn {
+  width: 100%;
+  background: var(--sage);
+  color: white;
+  border: none;
+  padding: 13px;
+  font-family: 'Outfit', sans-serif;
+  font-size: .82rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background .2s;
+}
+.pw-btn:hover { background: var(--sage-dark); }
+.pw-error {
+  font-size: .76rem;
+  color: #c0392b;
+  margin-top: 10px;
+  display: none;
+}
+
+/* ── HEADER ── */
+.header{background:var(--sage-dark);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;}
+.header-logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.6rem;letter-spacing:.08em;color:var(--cream);}
+.header-logo span{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-left:10px;vertical-align:middle;}
+
+/* ── LAYOUT ── */
+.main{max-width:1200px;margin:0 auto;padding:32px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;margin-bottom:28px;}
+.tab{padding:10px 24px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all .2s;background:white;color:var(--mid);}
+.tab.active{background:var(--sage);color:white;}
+.tab:hover:not(.active){background:var(--sage-pale);color:var(--sage);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:white;border:1px solid var(--stone);border-radius:3px;padding:28px;margin-bottom:20px;}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--charcoal);margin-bottom:4px;}
+.card-sub{font-size:.72rem;color:var(--mid);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
+
+/* ── AREA TIERS ── */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.tier-card{border-radius:3px;padding:20px;border:2px solid transparent;cursor:pointer;transition:all .2s;}
+.tier-card.premium{background:var(--premium-pale);border-color:#e8c84a;}
+.tier-card.standard{background:var(--standard-pale);border-color:#90bde0;}
+.tier-card.budget{background:var(--budget-pale);border-color:#90c494;}
+.tier-label{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.tier-card.premium .tier-label{color:var(--premium);}
+.tier-card.standard .tier-label{color:var(--standard);}
+.tier-card.budget .tier-label{color:var(--budget);}
+.tier-rate{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;line-height:1;}
+.tier-areas{font-size:.7rem;color:var(--mid);margin-top:6px;line-height:1.5;}
+
+/* ── SETTINGS GRID ── */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px;}
+.setting-group label{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:6px;}
+.setting-group input,.setting-group select{width:100%;border:1.5px solid var(--stone);background:var(--cream);padding:10px 12px;font-family:'Outfit',sans-serif;font-size:.9rem;color:var(--charcoal);outline:none;border-radius:2px;transition:border-color .2s;}
+.setting-group input:focus,.setting-group select:focus{border-color:var(--sage);}
+
+/* ── PRICING TABLE ── */
+.pricing-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.pricing-table th{background:var(--sage);color:white;padding:12px 16px;text-align:left;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;}
+.pricing-table td{padding:12px 16px;border-bottom:1px solid var(--stone);}
+.pricing-table tr:last-child td{border-bottom:none;}
+.pricing-table tr:hover td{background:var(--sage-pale);}
+.pricing-table .area-name{font-weight:500;color:var(--charcoal);}
+.pricing-table .tier-badge{font-size:.6rem;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;}
+.tier-badge.premium{background:var(--premium-pale);color:var(--premium);}
+.tier-badge.standard{background:var(--standard-pale);color:var(--standard);}
+.tier-badge.budget{background:var(--budget-pale);color:var(--budget);}
+.price-cell{font-weight:500;color:var(--charcoal);}
+.margin-cell{font-weight:600;}
+.margin-pos{color:var(--profit);}
+.margin-neg{color:var(--loss);}
+
+/* ── CALCULATOR ── */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.calc-inputs{display:flex;flex-direction:column;gap:14px;}
+.calc-result{background:var(--sage);border-radius:3px;padding:28px;color:white;display:flex;flex-direction:column;gap:16px;}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);}
+.result-row:last-child{border-bottom:none;}
+.result-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+.result-val{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--cream);}
+.result-val.profit{color:#9dc9a8;}
+.result-val.big{font-size:2.4rem;}
+
+/* ── SUMMARY STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-box{background:white;border:1px solid var(--stone);border-radius:3px;padding:20px;text-align:center;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--sage);line-height:1;}
+.stat-lbl{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-top:4px;}
+
+/* ── CLEANER RATES ── */
+.cleaner-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.cleaner-table th{background:var(--charcoal);color:white;padding:10px 14px;text-align:left;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;}
+.cleaner-table td{padding:10px 14px;border-bottom:1px solid var(--stone);}
+.cleaner-table input{border:1px solid var(--stone);background:var(--cream);padding:6px 10px;font-family:'Outfit',sans-serif;font-size:.84rem;width:90px;border-radius:2px;outline:none;}
+.cleaner-table input:focus{border-color:var(--sage);}
+.add-cleaner-btn{background:var(--sage);color:white;border:none;padding:10px 20px;font-family:'Outfit',sans-serif;font-size:.76rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:2px;margin-top:12px;transition:background .2s;}
+.add-cleaner-btn:hover{background:var(--sage-dark);}
+.del-btn{background:#fdf0f0;color:var(--loss);border:1px solid #f5c6c6;padding:4px 10px;border-radius:2px;cursor:pointer;font-size:.7rem;font-family:'Outfit',sans-serif;transition:all .15s;}
+.del-btn:hover{background:var(--loss);color:white;}
+
+@media(max-width:768px){
+  .main{padding:16px;}
+  .tier-grid{grid-template-columns:1fr;}
+  .calc-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+
+<!-- PASSWORD SCREEN -->
+<div class="pw-screen" id="pwScreen">
+  <div class="pw-box">
+    <div class="pw-logo">Purelo</div>
+    <div class="pw-sub">Internal Tool · Enter Password</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="Password"
+      onkeydown="if(event.key==='Enter') checkPassword()">
+    <button class="pw-btn" onclick="checkPassword()">Enter →</button>
+    <div class="pw-error" id="pwError">Incorrect password — try again</div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-logo">Purelo <span>Pricing Matrix</span></div>
+</div>
+
+<div class="main">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('matrix')">Price Matrix</button>
+    <button class="tab" onclick="switchTab('calculator')">Job Calculator</button>
+    <button class="tab" onclick="switchTab('commercial')">Commercial</button>
+    <button class="tab" onclick="switchTab('cleaners')">Cleaner Rates</button>
+  </div>
+
+  <!-- ════ TAB: MATRIX ════ -->
+  <div class="tab-panel active" id="tab-matrix">
+
+    <!-- Area Tiers -->
+    <div class="card">
+      <div class="card-title">Area Pricing Tiers</div>
+      <div class="card-sub">Edit rates per tier — all prices update automatically</div>
+      <div class="tier-grid">
+        <div class="tier-card premium">
+          <div class="tier-label">Premium</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:var(--premium)">£</span>
+            <input type="number" id="rate-premium" value="25" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:var(--premium);outline:none;"
+              oninput="updateAll()">
+            <span style="color:var(--premium);font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas">Kensington · Chelsea · Notting Hill · Holland Park</div>
+        </div>
+        <div class="tier-card standard">
+          <div class="tier-label">Standard</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:var(--standard)">£</span>
+            <input type="number" id="rate-standard" value="22" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:var(--standard);outline:none;"
+              oninput="updateAll()">
+            <span style="color:var(--standard);font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas">Hammersmith · Chiswick · Putney · Fulham · Shepherd's Bush</div>
+        </div>
+        <div class="tier-card budget">
+          <div class="tier-label">Value</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:var(--budget)">£</span>
+            <input type="number" id="rate-value" value="18" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:var(--budget);outline:none;"
+              oninput="updateAll()">
+            <span style="color:var(--budget);font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas">Ealing · Acton · Southall · Richmond</div>
+        </div>
+      </div>
+
+      <!-- Clean type multipliers -->
+      <div class="settings-grid">
+        <div class="setting-group">
+          <label>Standard Clean multiplier</label>
+          <input type="number" id="mult-standard" value="1.0" step="0.1" min="0.5" oninput="updateAll()">
+        </div>
+        <div class="setting-group">
+          <label>Deep Clean multiplier</label>
+          <input type="number" id="mult-deep" value="1.2" step="0.1" min="0.5" oninput="updateAll()">
+        </div>
+        <div class="setting-group">
+          <label>End of Tenancy multiplier</label>
+          <input type="number" id="mult-eot" value="1.3" step="0.1" min="0.5" oninput="updateAll()">
+        </div>
+        <div class="setting-group">
+          <label>Post-Event multiplier</label>
+          <input type="number" id="mult-event" value="1.25" step="0.1" min="0.5" oninput="updateAll()">
+        </div>
+        <div class="setting-group">
+          <label>Default cleaner rate (£/hr)</label>
+          <input type="number" id="cleaner-rate-default" value="13" min="1" oninput="updateAll()">
+        </div>
+        <div class="setting-group">
+          <label>Default hours per job</label>
+          <input type="number" id="default-hours" value="3" min="1" oninput="updateAll()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="stats-row" id="summary-stats"></div>
+
+    <!-- Pricing table -->
+    <div class="card">
+      <div class="card-title">Full Pricing Matrix</div>
+      <div class="card-sub">All areas · All clean types · Margin per job</div>
+      <div style="overflow-x:auto">
+        <table class="pricing-table" id="pricing-table">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Tier</th>
+              <th>Standard</th>
+              <th>Deep Clean</th>
+              <th>End of Tenancy</th>
+              <th>Post-Event</th>
+              <th>Your Margin*</th>
+            </tr>
+          </thead>
+          <tbody id="pricing-tbody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:.68rem;color:var(--mid);margin-top:12px;">* Margin based on default hours and cleaner rate set above</p>
+    </div>
+
+  </div>
+
+  <!-- ════ TAB: CALCULATOR ════ -->
+  <div class="tab-panel" id="tab-calculator">
+    <div class="card">
+      <div class="card-title">Job Profit Calculator</div>
+      <div class="card-sub">Work out exact margin for any booking</div>
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div class="setting-group">
+            <label>Area</label>
+            <select id="calc-area" onchange="calcUpdate()">
+              <option value="premium">Kensington / Chelsea / Notting Hill</option>
+              <option value="standard" selected>Hammersmith / Chiswick / Fulham</option>
+              <option value="value">Ealing / Acton / Richmond</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label>Clean Type</label>
+            <select id="calc-type" onchange="calcUpdate()">
+              <option value="standard">Standard Clean</option>
+              <option value="deep">Deep Clean</option>
+              <option value="eot">End of Tenancy</option>
+              <option value="event">Post-Event</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label>Hours</label>
+            <input type="number" id="calc-hours" value="3" min="1" max="24" oninput="calcUpdate()">
+          </div>
+          <div class="setting-group">
+            <label>Cleaner rate (£/hr)</label>
+            <input type="number" id="calc-cleaner" value="13" min="1" oninput="calcUpdate()">
+          </div>
+          <div class="setting-group">
+            <label>Travel/expenses (£)</label>
+            <input type="number" id="calc-expenses" value="0" min="0" oninput="calcUpdate()">
+          </div>
+          <div class="setting-group">
+            <label>Number of cleaners</label>
+            <input type="number" id="calc-num-cleaners" value="1" min="1" max="10" oninput="calcUpdate()">
+          </div>
+        </div>
+        <div class="calc-result" id="calc-result">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════ TAB: COMMERCIAL ════ -->
+  <div class="tab-panel" id="tab-commercial">
+
+    <div class="card">
+      <div class="card-title">Commercial Pricing Tiers</div>
+      <div class="card-sub">Edit rates per property type — updates automatically</div>
+      <div class="tier-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="tier-card premium">
+          <div class="tier-label">Office</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:var(--premium)">£</span>
+            <input type="number" id="comm-office" value="28" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:var(--premium);outline:none;"
+              oninput="updateCommercial()">
+            <span style="color:var(--premium);font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas">Corporate offices · Co-working spaces · Studios</div>
+        </div>
+        <div class="tier-card standard">
+          <div class="tier-label">Retail</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:var(--standard)">£</span>
+            <input type="number" id="comm-retail" value="26" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:var(--standard);outline:none;"
+              oninput="updateCommercial()">
+            <span style="color:var(--standard);font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas">Shops · Boutiques · Showrooms · Salons</div>
+        </div>
+        <div class="tier-card budget">
+          <div class="tier-label">Restaurant</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:var(--budget)">£</span>
+            <input type="number" id="comm-restaurant" value="32" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:var(--budget);outline:none;"
+              oninput="updateCommercial()">
+            <span style="color:var(--budget);font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas">Restaurants · Cafes · Bars · Hospitality</div>
+        </div>
+        <div class="tier-card" style="background:#f5f0ff;border-color:#b39ddb;">
+          <div class="tier-label" style="color:#6b46c1;">Airbnb / Short Let</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1.2rem;color:#6b46c1">£</span>
+            <input type="number" id="comm-airbnb" value="30" min="1"
+              style="border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;width:80px;color:#6b46c1;outline:none;"
+              oninput="updateCommercial()">
+            <span style="color:#6b46c1;font-size:.9rem">/hr</span>
+          </div>
+          <div class="tier-areas" style="color:#9575cd;">Airbnb · Short lets · Serviced apartments</div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="setting-group">
+          <label>Out of hours surcharge (%)</label>
+          <input type="number" id="comm-ooh" value="25" min="0" oninput="updateCommercial()">
+        </div>
+        <div class="setting-group">
+          <label>Weekend surcharge (%)</label>
+          <input type="number" id="comm-weekend" value="15" min="0" oninput="updateCommercial()">
+        </div>
+        <div class="setting-group">
+          <label>Cleaner rate (£/hr)</label>
+          <input type="number" id="comm-cleaner-rate" value="14" min="1" oninput="updateCommercial()">
+        </div>
+        <div class="setting-group">
+          <label>Default hours per job</label>
+          <input type="number" id="comm-hours" value="4" min="1" oninput="updateCommercial()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="stats-row" id="comm-summary-stats"></div>
+
+    <!-- Commercial pricing table -->
+    <div class="card">
+      <div class="card-title">Commercial Pricing Matrix</div>
+      <div class="card-sub">All property types · Standard · Out of hours · Weekend</div>
+      <div style="overflow-x:auto">
+        <table class="pricing-table">
+          <thead>
+            <tr>
+              <th>Property Type</th>
+              <th>Base rate/hr</th>
+              <th>Standard job</th>
+              <th>Out of hours</th>
+              <th>Weekend</th>
+              <th>Your Margin*</th>
+            </tr>
+          </thead>
+          <tbody id="comm-tbody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:.68rem;color:var(--mid);margin-top:12px;">* Margin based on default hours and cleaner rate above</p>
+    </div>
+
+    <!-- Commercial calculator -->
+    <div class="card">
+      <div class="card-title">Commercial Job Calculator</div>
+      <div class="card-sub">Work out exact margin for any commercial booking</div>
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div class="setting-group">
+            <label>Property Type</label>
+            <select id="comm-calc-type" onchange="commCalcUpdate()">
+              <option value="office">Office</option>
+              <option value="retail">Retail</option>
+              <option value="restaurant">Restaurant / Hospitality</option>
+              <option value="airbnb">Airbnb / Short Let</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label>Hours</label>
+            <input type="number" id="comm-calc-hours" value="4" min="1" oninput="commCalcUpdate()">
+          </div>
+          <div class="setting-group">
+            <label>Number of cleaners</label>
+            <input type="number" id="comm-calc-cleaners" value="1" min="1" oninput="commCalcUpdate()">
+          </div>
+          <div class="setting-group">
+            <label>Cleaner rate (£/hr)</label>
+            <input type="number" id="comm-calc-cleaner-rate" value="14" min="1" oninput="commCalcUpdate()">
+          </div>
+          <div class="setting-group">
+            <label>Timing</label>
+            <select id="comm-calc-timing" onchange="commCalcUpdate()">
+              <option value="standard">Standard hours</option>
+              <option value="ooh">Out of hours</option>
+              <option value="weekend">Weekend</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label>Expenses (£)</label>
+            <input type="number" id="comm-calc-expenses" value="0" min="0" oninput="commCalcUpdate()">
+          </div>
+        </div>
+        <div class="calc-result" id="comm-calc-result"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════ TAB: CLEANERS ════ -->
+  <div class="tab-panel" id="tab-cleaners">
+    <div class="card">
+      <div class="card-title">Cleaner Rate Card</div>
+      <div class="card-sub">Track what you pay each cleaner per hour</div>
+      <table class="cleaner-table">
+        <thead>
+          <tr>
+            <th>Cleaner Name</th>
+            <th>Rate (£/hr)</th>
+            <th>Areas</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="cleaner-tbody"></tbody>
+      </table>
+      <button class="add-cleaner-btn" onclick="addCleaner()">+ Add Cleaner</button>
+    </div>
+
+    <!-- Cleaner margin comparison -->
+    <div class="card">
+      <div class="card-title">Margin by Cleaner</div>
+      <div class="card-sub">How much you make per 3hr Standard Clean with each cleaner</div>
+      <table class="pricing-table" id="cleaner-margin-table">
+        <thead>
+          <tr>
+            <th>Cleaner</th>
+            <th>Rate/hr</th>
+            <th>Cost (3hrs)</th>
+            <th>Premium area margin</th>
+            <th>Standard area margin</th>
+            <th>Value area margin</th>
+          </tr>
+        </thead>
+        <tbody id="cleaner-margin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ──
+const AREAS = [
+  { name: 'Kensington', tier: 'premium' },
+  { name: 'Chelsea', tier: 'premium' },
+  { name: 'Notting Hill', tier: 'premium' },
+  { name: 'Holland Park', tier: 'premium' },
+  { name: 'Hammersmith', tier: 'standard' },
+  { name: 'Chiswick', tier: 'standard' },
+  { name: 'Fulham', tier: 'standard' },
+  { name: "Shepherd's Bush", tier: 'standard' },
+  { name: 'Putney', tier: 'standard' },
+  { name: 'Ealing', tier: 'value' },
+  { name: 'Acton', tier: 'value' },
+  { name: 'Richmond', tier: 'value' },
+  { name: 'Southall', tier: 'value' },
+];
+
+let cleaners = [
+  { name: 'Maria', rate: 13, areas: 'Hammersmith, Fulham', notes: 'Reliable, deep clean specialist' },
+  { name: 'Priya', rate: 14, areas: 'Kensington, Chelsea', notes: 'Premium areas only' },
+];
+
+// ── HELPERS ──
+function gv(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function getTierRate(tier) {
+  return tier === 'premium' ? gv('rate-premium') :
+         tier === 'standard' ? gv('rate-standard') : gv('rate-value');
+}
+function getMult(type) {
+  return type === 'deep' ? gv('mult-deep') :
+         type === 'eot' ? gv('mult-eot') :
+         type === 'event' ? gv('mult-event') : gv('mult-standard');
+}
+function fmt(n) { return '£' + n.toFixed(0); }
+function fmtD(n) { return n >= 0 ? '<span class="margin-pos">£'+n.toFixed(0)+'</span>' : '<span class="margin-neg">£'+n.toFixed(0)+'</span>'; }
+
+// ── MATRIX ──
+function updateMatrix() {
+  const hours = gv('default-hours');
+  const cleanerRate = gv('cleaner-rate-default');
+  const cleanerCost = cleanerRate * hours;
+  const types = ['standard','deep','eot','event'];
+  const typeNames = ['Standard','Deep Clean','End of Tenancy','Post-Event'];
+  const tbody = document.getElementById('pricing-tbody');
+  tbody.innerHTML = '';
+
+  AREAS.forEach(area => {
+    const base = getTierRate(area.tier);
+    const tr = document.createElement('tr');
+    const prices = types.map(t => base * getMult(t) * hours);
+    const margin = prices[0] - cleanerCost; // margin on standard clean
+    tr.innerHTML = `
+      <td class="area-name">${area.name}</td>
+      <td><span class="tier-badge ${area.tier}">${area.tier}</span></td>
+      ${prices.map(p => `<td class="price-cell">${fmt(p)}</td>`).join('')}
+      <td>${fmtD(margin)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Summary stats
+  const allMargins = AREAS.map(a => getTierRate(a.tier) * getMult('standard') * hours - cleanerCost);
+  const avgMargin = allMargins.reduce((a,b)=>a+b,0)/allMargins.length;
+  const premiumAvg = AREAS.filter(a=>a.tier==='premium').map(a=>getTierRate('premium')*getMult('standard')*hours-cleanerCost).reduce((a,b)=>a+b,0)/4;
+  const weeklyEst = avgMargin * 10; // 10 jobs/week estimate
+
+  document.getElementById('summary-stats').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${fmt(premiumAvg)}</div><div class="stat-lbl">Premium margin/job</div></div>
+    <div class="stat-box"><div class="stat-val">${fmt(avgMargin)}</div><div class="stat-lbl">Avg margin/job</div></div>
+    <div class="stat-box"><div class="stat-val">${fmt(weeklyEst)}</div><div class="stat-lbl">Est. weekly (10 jobs)</div></div>
+    <div class="stat-box"><div class="stat-val">${fmt(weeklyEst*4)}</div><div class="stat-lbl">Est. monthly (10/wk)</div></div>
+  `;
+}
+
+// ── CALCULATOR ──
+function calcUpdate() {
+  const area = document.getElementById('calc-area').value;
+  const type = document.getElementById('calc-type').value;
+  const hours = gv('calc-hours');
+  const cleanerRate = gv('calc-cleaner');
+  const expenses = gv('calc-expenses');
+  const numCleaners = gv('calc-num-cleaners');
+
+  const baseRate = getTierRate(area);
+  const mult = getMult(type);
+  const clientCharge = baseRate * mult * hours;
+  const cleanerCost = cleanerRate * hours * numCleaners;
+  const totalCost = cleanerCost + expenses;
+  const margin = clientCharge - totalCost;
+  const marginPct = clientCharge > 0 ? (margin/clientCharge*100) : 0;
+
+  document.getElementById('calc-result').innerHTML = `
+    <div class="result-row">
+      <span class="result-label">Client charge</span>
+      <span class="result-val big">${fmt(clientCharge)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Cleaner cost (${numCleaners} × £${cleanerRate}/hr × ${hours}hrs)</span>
+      <span class="result-val">${fmt(cleanerCost)}</span>
+    </div>
+    ${expenses > 0 ? `<div class="result-row"><span class="result-label">Expenses</span><span class="result-val">${fmt(expenses)}</span></div>` : ''}
+    <div class="result-row">
+      <span class="result-label">Total costs</span>
+      <span class="result-val">${fmt(totalCost)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Your profit</span>
+      <span class="result-val profit big">${fmt(margin)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Margin %</span>
+      <span class="result-val profit">${marginPct.toFixed(0)}%</span>
+    </div>
+  `;
+}
+
+// ── CLEANERS ──
+function renderCleaners() {
+  const tbody = document.getElementById('cleaner-tbody');
+  tbody.innerHTML = '';
+  cleaners.forEach((c, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input value="${c.name}" oninput="cleaners[${i}].name=this.value;renderCleanerMargins()"></td>
+      <td><input type="number" value="${c.rate}" min="1" style="width:70px" oninput="cleaners[${i}].rate=parseFloat(this.value)||0;renderCleanerMargins()"></td>
+      <td><input value="${c.areas}" style="width:180px" oninput="cleaners[${i}].areas=this.value"></td>
+      <td><input value="${c.notes}" style="width:200px" oninput="cleaners[${i}].notes=this.value"></td>
+      <td><button class="del-btn" onclick="deleteCleaner(${i})">Remove</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  renderCleanerMargins();
+}
+
+function addCleaner() {
+  cleaners.push({ name: 'New Cleaner', rate: 13, areas: '', notes: '' });
+  renderCleaners();
+}
+function deleteCleaner(i) {
+  cleaners.splice(i, 1);
+  renderCleaners();
+}
+
+function renderCleanerMargins() {
+  const hours = 3;
+  const tbody = document.getElementById('cleaner-margin-tbody');
+  tbody.innerHTML = '';
+  cleaners.forEach(c => {
+    const cost = c.rate * hours;
+    const pMargin = getTierRate('premium') * getMult('standard') * hours - cost;
+    const sMargin = getTierRate('standard') * getMult('standard') * hours - cost;
+    const vMargin = getTierRate('value') * getMult('standard') * hours - cost;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="area-name">${c.name}</td>
+      <td>£${c.rate}/hr</td>
+      <td>${fmt(cost)}</td>
+      <td>${fmtD(pMargin)}</td>
+      <td>${fmtD(sMargin)}</td>
+      <td>${fmtD(vMargin)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── TABS ──
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+  updateAll();
+}
+
+function updateAll() {
+  updateMatrix();
+  calcUpdate();
+  renderCleanerMargins();
+  updateCommercial();
+}
+
+// ── INIT ──
+updateAll();
+renderCleaners();
+
+
+// ── COMMERCIAL ──
+function getCommRate(type) {
+  return type === 'office' ? (parseFloat(document.getElementById('comm-office').value)||28) :
+         type === 'retail' ? (parseFloat(document.getElementById('comm-retail').value)||26) :
+         type === 'restaurant' ? (parseFloat(document.getElementById('comm-restaurant').value)||32) :
+         (parseFloat(document.getElementById('comm-airbnb').value)||30);
+}
+
+function updateCommercial() {
+  const hours = parseFloat(document.getElementById('comm-hours').value)||4;
+  const cleanerRate = parseFloat(document.getElementById('comm-cleaner-rate').value)||14;
+  const oohPct = 1 + (parseFloat(document.getElementById('comm-ooh').value)||25)/100;
+  const wePct = 1 + (parseFloat(document.getElementById('comm-weekend').value)||15)/100;
+  const cleanerCost = cleanerRate * hours;
+
+  const types = [
+    {key:'office', label:'Office', color:'premium'},
+    {key:'retail', label:'Retail', color:'standard'},
+    {key:'restaurant', label:'Restaurant / Hospitality', color:'budget'},
+    {key:'airbnb', label:'Airbnb / Short Let', color:''},
+  ];
+
+  const tbody = document.getElementById('comm-tbody');
+  tbody.innerHTML = '';
+
+  types.forEach(t => {
+    const base = getCommRate(t.key);
+    const std = base * hours;
+    const ooh = base * oohPct * hours;
+    const we = base * wePct * hours;
+    const margin = std - cleanerCost;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="area-name">${t.label}</td>
+      <td class="price-cell">£${base}/hr</td>
+      <td class="price-cell">${fmt(std)}</td>
+      <td class="price-cell">${fmt(ooh)}</td>
+      <td class="price-cell">${fmt(we)}</td>
+      <td>${fmtD(margin)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Summary
+  const margins = types.map(t => getCommRate(t.key) * hours - cleanerCost);
+  const avg = margins.reduce((a,b)=>a+b,0)/margins.length;
+  document.getElementById('comm-summary-stats').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${fmt(getCommRate('restaurant')*hours-cleanerCost)}</div><div class="stat-lbl">Restaurant margin/job</div></div>
+    <div class="stat-box"><div class="stat-val">${fmt(getCommRate('office')*hours-cleanerCost)}</div><div class="stat-lbl">Office margin/job</div></div>
+    <div class="stat-box"><div class="stat-val">${fmt(avg)}</div><div class="stat-lbl">Avg commercial margin</div></div>
+    <div class="stat-box"><div class="stat-val">${fmt(avg*10)}</div><div class="stat-lbl">Est. weekly (10 jobs)</div></div>
+  `;
+
+  commCalcUpdate();
+}
+
+function commCalcUpdate() {
+  const type = document.getElementById('comm-calc-type').value;
+  const hours = parseFloat(document.getElementById('comm-calc-hours').value)||4;
+  const numCleaners = parseFloat(document.getElementById('comm-calc-cleaners').value)||1;
+  const cleanerRate = parseFloat(document.getElementById('comm-calc-cleaner-rate').value)||14;
+  const timing = document.getElementById('comm-calc-timing').value;
+  const expenses = parseFloat(document.getElementById('comm-calc-expenses').value)||0;
+
+  const oohPct = 1 + (parseFloat(document.getElementById('comm-ooh').value)||25)/100;
+  const wePct = 1 + (parseFloat(document.getElementById('comm-weekend').value)||15)/100;
+  const timingMult = timing === 'ooh' ? oohPct : timing === 'weekend' ? wePct : 1;
+
+  const base = getCommRate(type);
+  const clientCharge = base * timingMult * hours;
+  const cleanerCost = cleanerRate * hours * numCleaners;
+  const totalCost = cleanerCost + expenses;
+  const margin = clientCharge - totalCost;
+  const marginPct = clientCharge > 0 ? (margin/clientCharge*100) : 0;
+  const timingLabel = timing === 'ooh' ? ' (out of hours)' : timing === 'weekend' ? ' (weekend)' : '';
+
+  document.getElementById('comm-calc-result').innerHTML = `
+    <div class="result-row">
+      <span class="result-label">Client charge${timingLabel}</span>
+      <span class="result-val big">${fmt(clientCharge)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Cleaner cost (${numCleaners} × £${cleanerRate}/hr × ${hours}hrs)</span>
+      <span class="result-val">${fmt(cleanerCost)}</span>
+    </div>
+    ${expenses > 0 ? `<div class="result-row"><span class="result-label">Expenses</span><span class="result-val">${fmt(expenses)}</span></div>` : ''}
+    <div class="result-row">
+      <span class="result-label">Total costs</span>
+      <span class="result-val">${fmt(totalCost)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Your profit</span>
+      <span class="result-val profit big">${fmt(margin)}</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Margin %</span>
+      <span class="result-val profit">${marginPct.toFixed(0)}%</span>
+    </div>
+  `;
+}
+
+// ── PASSWORD ──
+function checkPassword() {
+  const input = document.getElementById('pwInput').value;
+  if (input === 'Purelo@') {
+    document.getElementById('pwScreen').style.display = 'none';
+    sessionStorage.setItem('purelo-auth', '1');
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+// Auto-check if already authenticated this session
+if (sessionStorage.getItem('purelo-auth') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pwScreen').style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>
